@@ -1,24 +1,35 @@
-import os
-
 from sqlalchemy import create_engine
 from sqlalchemy.engine import Engine
+from sqlalchemy.exc import OperationalError
+from sqlalchemy.ext.declarative import declarative_base
+
+Base = declarative_base()
 
 
-def init_db(db_url: str) -> Engine:
-    engine = create_engine(db_url)
+def init_db(database_url: str) -> Engine:
+    engine = create_engine(database_url)
+    try:
+        engine.connect()
+    except OperationalError as err:
+        print("database does not exist")
+        print(err)
+        print("-----------------------")
+        print("creating database")
+        engine = create_engine("postgres://postgres:postgres@postgres-db:5432")
+        conn = engine.connect().execution_options(isolation_level="AUTOCOMMIT")
+        conn.execute("CREATE DATABASE dev_db")
+        print(" - database created - ")
+        init_db(database_url)
     return engine
 
 
-def create_db_if_not_exists(engine: Engine, db_name: str):
-    # Creating connection instance out of the Engine class
-    # Will use SQL to check if database exists and create
-    # it in case it doesnt based on the current configuration
-    conn = engine.connect()
-
+def create_tables(engine: Engine) -> bool:
     try:
-        conn.execute(f"CREATE DATABASE IF NOT EXISTS {db_name}")
-        print("Database created")
+        print(" ------------------------ ")
+        print(" creating tables          ")
+        Base.metadata.create_all(engine)
+        return True
     except Exception as err:
-        print("Failed creating database")
+        print("Error in create_tables")
         print("Error: ", err)
-        os.Exit(1)
+        return False
