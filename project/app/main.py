@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 
-from app.routers import test_router
+from project.app.routers import test_router
 
 
 def create_application() -> FastAPI:
