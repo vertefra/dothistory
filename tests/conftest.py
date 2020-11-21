@@ -3,6 +3,8 @@ from project.app import main
 # from project.app.main import create_application
 from starlette.testclient import TestClient
 
+# from project.app.config import Settings
+
 
 @pytest.fixture(scope="module")
 def test_app():
