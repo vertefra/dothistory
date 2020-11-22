@@ -4,6 +4,8 @@ from sqlalchemy.engine import Engine
 from sqlalchemy.exc import OperationalError
 from sqlalchemy.ext.declarative import declarative_base
 
+from project.app.config import get_settings
+
 
 Base = declarative_base()
 
@@ -35,7 +37,7 @@ def create_tables(engine: Engine) -> bool:
     connected to a posgres database'''
     try:
         print(" ------------------------ ")
-        print(" creating tables          ")
+        print(" - Creating tables          ")
         Base.metadata.create_all(engine)
         return True
     except Exception as err:
@@ -46,8 +48,8 @@ def create_tables(engine: Engine) -> bool:
 
 def get_db(engine: Engine) -> Session:
     ''' Returns a Session '''
-    db = sessionmaker(bind=engine)
-    try:
-        yield db
-    finally:
-        db.close()
+    db = sessionmaker(bind=engine, autocommit=False, autoflush=False)()
+    return db
+
+
+engine = init_db(get_settings().database_url)
