@@ -2,7 +2,7 @@ version: '3'
 services:
   web:
     build:
-      context: .
+      context: ./project/app
       dockerfile: Dockerfile.dev
     ports:
       - 5000:5000
@@ -11,6 +11,8 @@ services:
       - .:/usr/src/app
     depends_on:
       - postgres-db
+    environment:
+      - PYTHONUNBUFFERED=1
 
   postgres-db:
     build:

@@ -17,6 +17,7 @@ class Author(BaseModel):
 
     def create_author(self, db: Session, password):
         self.password = password
+        print(self)
         try:
             db.add(**self.dict())
             db.commit()

@@ -2,8 +2,6 @@ FROM python:3.8.3-slim-buster
 
 WORKDIR /usr/src/app
 
-
-
 RUN apt-get update \
     && apt-get -y install netcat gcc \
     && apt-get clean
@@ -13,8 +11,8 @@ RUN pip install --upgrade pip
 # bug from pytest
 RUN pip install requests 
 
-ENV PYTHONDONTWRITEBYTECODE 1
-ENV PYTHONUNBUFFERED 1
+ENV PYTHONDONTWRITEBYTECODE=1
+ENV PYTHONUNBUFFERED=1
 ENV ENVIRONMENT development
 ENV TESTING true
 ENV DATABASE_URL postgresql://postgres:postgres@postgres-db:5432/dev_db

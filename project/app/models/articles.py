@@ -26,6 +26,6 @@ class Article(Base):
     party_tag = Column(String)
     people_tag = Column(String)
 
-    author_id = Column(Integer, ForeignKey("author.id"))
+    author_id = Column(Integer, ForeignKey("authors.id"))
 
     author = relationship("Author")

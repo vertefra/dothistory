@@ -1,3 +1,5 @@
+import logging
+
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, Session
 from sqlalchemy.engine import Engine
@@ -6,8 +8,7 @@ from sqlalchemy.ext.declarative import declarative_base
 
 from project.app.config import get_settings
 
-
-Base = declarative_base()
+log = logging.getLogger(__name__)
 
 
 def init_db(database_url: str, db_name: str = "dev_db") -> Engine:
@@ -32,24 +33,22 @@ def init_db(database_url: str, db_name: str = "dev_db") -> Engine:
     return engine
 
 
-def create_tables(engine: Engine) -> bool:
-    ''' Creates database tables. Require a SQLAlchemy database engine
-    connected to a posgres database'''
+def get_db(session: Session) -> Session:
+    ''' Returns a db instance '''
+
+    db = session()
     try:
-        print(" ------------------------ ")
-        print(" - Creating tables          ")
-        Base.metadata.create_all(engine)
-        return True
-    except Exception as err:
-        print("Error in create_tables")
-        print("Error: ", err)
-        return False
+        return db
+    finally:
+        db.close()
 
 
-def get_db(engine: Engine) -> Session:
-    ''' Returns a Session '''
-    db = sessionmaker(bind=engine, autocommit=False, autoflush=False)()
-    return db
+def create_tables(db_tables: list):
+    db_tables = [table.__table__ for table in db_tables]
+    Base.metadata.create_all(bind=engine, tables=db_tables, checkfirst=True)
 
 
 engine = init_db(get_settings().database_url)
+
+SessionLocal = sessionmaker(bind=engine, autocommit=False, autoflush=False)
+Base = declarative_base(bind=engine)
