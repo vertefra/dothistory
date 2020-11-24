@@ -1,5 +1,5 @@
 import logging
-import asyncio
+# import asyncio
 
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, Session
@@ -46,18 +46,18 @@ def init_db(testing: bool = False) -> Engine:
         init_db(db_url)
 
 
-async def get_db(session: Session) -> Session:
+def get_db() -> Session:
     ''' Returns a db instance '''
 
-    db = session()
+    db = SessionLocal()
     try:
         return db
     finally:
         db.close()
 
 
-async def create_tables(db_tables: list, engine: Engine):
-    ''' Creates tables descripted in models and added to db_tables in main.py '''
+def create_tables(db_tables: list, engine: Engine):
+    '''Creates tables descripted in models and added to db_tables in main.py'''
 
     print(' - Creating Tables if not exists')
 

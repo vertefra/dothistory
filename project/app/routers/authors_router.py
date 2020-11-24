@@ -1,6 +1,7 @@
-from project.app.database.db import get_db, Session
-from fastapi import APIRouter
+from fastapi import APIRouter, Depends
+from sqlalchemy.orm import Session
 
+from project.app.database.db import get_db
 from project.app.schemas.authors import AuthorRequestPayload, Author
 from project.app.schemas.authors import AuthorResponsePayload
 
@@ -8,9 +9,10 @@ router = APIRouter()
 
 
 @router.post("/", response_model=AuthorResponsePayload)
-def create_author(author_payload: AuthorRequestPayload):
+async def create_author(
+        author_payload: AuthorRequestPayload,
+        db: Session = Depends(get_db)):
 
-    db = get_db(Session)
     created_author = Author.create_author(
         author_payload, db, password=author_payload.password)
 

@@ -1,10 +1,8 @@
-
-import asyncio
-
 from fastapi import FastAPI
+# from sqlalchemy.orm import Session
+from sqlalchemy.engine import Engine
 
 from project.app.routers import ping_router, authors_router
-from project.app.config import get_settings
 from project.app.models import authors, articles
 from project.app.database.db import create_tables, engine
 
@@ -14,15 +12,17 @@ db_tables = [
 ]
 
 
-def create_application() -> FastAPI:
-    application = FastAPI()
+def create_application(
+        db_engine: Engine = engine,
+        db_tables: list = db_tables) -> FastAPI:
+    ''' For testing: create a database engine for testing
+    with init_db(testing=True) and feed it to create_application
+    in order to have a db_test active '''
 
-    # creating tables in async
-    asyncio.create_task(create_tables(db_tables, engine))
-    print(" - go on setting up routes")
+    application = FastAPI()
+    create_tables(db_tables, engine)
 
     application.include_router(ping_router.router)
-
     application.include_router(
         router=authors_router.router,
         prefix="/authors"
@@ -30,6 +30,4 @@ def create_application() -> FastAPI:
     return application
 
 
-settings = get_settings()
 app = create_application()
-# create_tables(db_tables, engine)
