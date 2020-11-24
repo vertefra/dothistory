@@ -22,14 +22,11 @@ class Author(BaseModel):
 
         new_author = authors.Author(**self.dict())
 
-        try:
-            db.add(new_author)
-            db.commit()
-            db.refresh(new_author)
-            return new_author
-        except InvalidRequestError as err:
-            db.rollback()
-            print("ERROR while trying to create new Author: ", err)
+        db.add(new_author)
+        db.commit()
+        db.refresh(new_author)
+
+        return new_author
 
     def __repr__(self):
         return {

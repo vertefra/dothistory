@@ -1,7 +1,9 @@
 from sqlalchemy import Column, Integer, String, Text
 from sqlalchemy.orm import relationship
 
-from project.app.database.db import Base
+from project.app.database.db import db_engine
+
+Base = db_engine.base
 
 
 class Author(Base):

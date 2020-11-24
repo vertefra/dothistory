@@ -23,10 +23,14 @@ def test_app_with_db() -> TestClient:
 
     settings = get_settings()
     test_engine = init_db(testing=True)
+
     TestSession = sessionmaker(
         bind=test_engine, autocommit=False, autoflush=False)
 
     def get_test_db():
+
+        print("Test db initialized")
+
         db = TestSession()
         try:
             yield db

@@ -1,10 +1,9 @@
 from fastapi import FastAPI
 # from sqlalchemy.orm import Session
-from sqlalchemy.engine import Engine
 
 from project.app.routers import ping_router, authors_router
 from project.app.models import authors, articles
-from project.app.database.db import create_tables, engine
+from project.app.database.db import db_engine
 
 db_tables = [
     authors.Author,
@@ -12,15 +11,13 @@ db_tables = [
 ]
 
 
-def create_application(
-        db_engine: Engine = engine,
-        db_tables: list = db_tables) -> FastAPI:
-    ''' For testing: create a database engine for testing
-    with init_db(testing=True) and feed it to create_application
-    in order to have a db_test active '''
+def create_application():
 
     application = FastAPI()
-    create_tables(db_tables, engine)
+
+    db_engine.bind_fastAPI(application)
+    db_engine.set_tables(db_tables)
+    db_engine.create_tables()
 
     application.include_router(ping_router.router)
     application.include_router(
