@@ -4,6 +4,8 @@ from typing import List, Optional
 from sqlalchemy.orm import Session
 from sqlalchemy.exc import InvalidRequestError
 
+from project.app.models import authors
+
 
 class Author(BaseModel):
     name: str
@@ -17,12 +19,14 @@ class Author(BaseModel):
 
     def create_author(self, db: Session, password):
         self.password = password
-        print(self)
+
+        new_author = authors.Author(**self.dict())
+
         try:
-            db.add(**self.dict())
+            db.add(new_author)
             db.commit()
-            db.refresh(self)
-            return self
+            db.refresh(new_author)
+            return new_author
         except InvalidRequestError as err:
             db.rollback()
             print("ERROR while trying to create new Author: ", err)

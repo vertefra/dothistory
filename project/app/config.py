@@ -11,7 +11,8 @@ class Settings(BaseSettings):
     environment: str = os.getenv("ENVIRONMENT", 'development')
     testing: bool = os.getenv("TESTING", False)
     database_url: str = os.getenv("DATABASE_URL")
-    database_url_test: str = os.getenv("DATABASE_URL_TEST")
+    test_db: str = os.getenv("TEST_DB")
+    dev_db: str = os.getenv("DEV_DB")
 
 
 @lru_cache()
