@@ -1,6 +1,7 @@
+
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
-from sqlalchemy.exc import DatabaseError
+from sqlalchemy.exc import IntegrityError
 
 from project.app.database.db import db_engine
 from project.app.schemas.authors import AuthorRequestPayload, Author
@@ -13,14 +14,11 @@ router = APIRouter()
 async def create_author(
         author_payload: AuthorRequestPayload,
         db: Session = Depends(db_engine.get_db)):
-    print('--------- processing request --------------')
     try:
-        print("--------------try block---------------------")
         created_author = Author.create_author(
             author_payload, db, password=author_payload.password)
-        print("------------endblock -------------------")
         return created_author
 
-    except Exception as err:
-        raise HTTPException(status_code=404, detail=err)
-        return
+    except IntegrityError:
+        raise HTTPException(status_code=404, detail={
+                            "success": False, "error": "duplicate key"})

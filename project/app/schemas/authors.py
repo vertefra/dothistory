@@ -2,7 +2,7 @@ from pydantic import BaseModel
 from typing import List, Optional
 
 from sqlalchemy.orm import Session
-from sqlalchemy.exc import InvalidRequestError
+from sqlalchemy.exc import InvalidRequestError, IntegrityError
 
 from project.app.models import authors
 
@@ -22,11 +22,15 @@ class Author(BaseModel):
 
         new_author = authors.Author(**self.dict())
 
-        db.add(new_author)
-        db.commit()
-        db.refresh(new_author)
+        try:
+            db.add(new_author)
+            db.commit()
+            db.refresh(new_author)
+            return new_author
 
-        return new_author
+        except IntegrityError as err:
+            db.rollback()
+            raise err
 
     def __repr__(self):
         return {
