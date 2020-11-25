@@ -20,5 +20,5 @@ async def create_author(
         return created_author
 
     except IntegrityError:
-        raise HTTPException(status_code=404, detail={
+        raise HTTPException(status_code=400, detail={
                             "success": False, "error": "duplicate key"})

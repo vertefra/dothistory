@@ -2,7 +2,7 @@ from pydantic import BaseModel
 from typing import List, Optional
 
 from sqlalchemy.orm import Session
-from sqlalchemy.exc import InvalidRequestError, IntegrityError
+from sqlalchemy.exc import IntegrityError
 
 from project.app.models import authors
 

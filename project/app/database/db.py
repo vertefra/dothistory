@@ -119,5 +119,15 @@ class Db():
         finally:
             db.close()
 
+    def __repr__(self):
+        return {
+            "testing": self.testing,
+            "engine": self.engine,
+            "db_name": self.db_name,
+            "db_url": self.db_url,
+            "tables": self.tables,
+            "app": self.app
+        }
+
 
 db_engine = Db()

@@ -7,7 +7,9 @@ from sqlalchemy.orm import sessionmaker
 from sqlalchemy import create_engine
 
 from project.app.config import get_settings
-from project.app.database.db import init_db
+from project.app.database.db import Db
+
+db_test_engine = Db(testing=True)
 
 
 @pytest.fixture(scope="module")

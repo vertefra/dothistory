@@ -10,8 +10,6 @@ def test_create_author(test_app_with_db):
         password="Test Password"
     )
 
-    print(payload.dict())
-
     response = test_app_with_db.post(
         '/authors/', data=json.dumps(payload.dict()))
     print(response)
