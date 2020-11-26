@@ -57,11 +57,13 @@ class Db():
         self.app = app
         return self
 
-    def bind_test_client(self, test_client: TestClient):
-        '''Binds Db instance to Starlette Test Client for testing
-        returns the binded Db instance '''
-        self.TestClient = test_client
-        return self
+    def bind_test_client(self):
+
+        if self.app is None:
+            raise Exception("App is None")
+
+        self.TestClient = TestClient(self.app)
+        return self.TestClient
 
     def init_engine(self) -> Engine:
         ''' Initialize the engine. require the connection string for

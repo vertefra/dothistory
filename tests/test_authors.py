@@ -6,13 +6,13 @@ def test_create_author(test_app_with_db):
 
     payload = authors.AuthorRequestPayload(
         name="Test Name",
-        email="Test Email",
+        email="vertel@gmail.com",
         password="Test Password"
     )
 
-    response = test_app_with_db.post(
+    test_client = test_app_with_db.TestClient
+
+    response = test_client.post(
         '/authors/', data=json.dumps(payload.dict()))
-    print(response)
 
     assert response.status_code == 201
-    assert type(response) == authors.AuthorResponsePayload

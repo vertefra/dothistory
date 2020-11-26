@@ -3,7 +3,6 @@ import pytest
 from project.app.main import app, db_tables, create_application
 from starlette.testclient import TestClient
 
-
 from project.app.database.db import Db
 
 db_test_engine = Db(testing=True)
@@ -31,25 +30,20 @@ def test_app_with_db() -> TestClient:
     db_test_engine.app.dependency_overrides["get_db"] = db_test_engine.get_db
 
     # binding db_test_engine with starlette TestClient
+
     db_test_engine.bind_test_client()
 
-    test_client = TestClient(db_test_engine.app)
+    try:
 
-    db_test_engine.bind_test_client(test_client)
+        yield db_test_engine
 
-    with TestClient(db_test_engine.app) as test_client:
+    finally:
 
-        try:
+        # teardown
+        db_test_engine.engine.dispose()
 
-            yield db_test_engine
-
-        finally:
-
-            # teardown
-            db_test_engine.engine.dispose()
-
-            # Connect to posgres server to drop the database
-            teardown_engine = db_test_engine.init_engine()
-            conn = teardown_engine.connect()
-            conn.execute("DROP TABLE articles")
-            conn.execute("DROP TABLE authors")
+        # Connect to posgres server to drop the database
+        teardown_engine = db_test_engine.init_engine()
+        conn = teardown_engine.connect()
+        conn.execute("DROP TABLE articles")
+        conn.execute("DROP TABLE authors")
