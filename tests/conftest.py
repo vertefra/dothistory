@@ -1,12 +1,9 @@
 import pytest
 
-from project.app.main import app
-from project.app.main import create_application, db_tables
+from project.app.main import app, db_tables, create_application
 from starlette.testclient import TestClient
-from sqlalchemy.orm import sessionmaker
-from sqlalchemy import create_engine
 
-from project.app.config import get_settings
+
 from project.app.database.db import Db
 
 db_test_engine = Db(testing=True)
@@ -23,48 +20,36 @@ def test_app_with_db() -> TestClient:
 
     # Initializing database for testing
 
-    settings = get_settings()
-    test_engine = init_db(testing=True)
+    db_test_engine.set_tables(db_tables)
 
-    TestSession = sessionmaker(
-        bind=test_engine, autocommit=False, autoflush=False)
+    app = create_application()
 
-    def get_test_db():
+    # bind fast api application
+    db_test_engine.bind_fastAPI(app)
 
-        print("Test db initialized")
+    # override dependencies for test_db
+    db_test_engine.app.dependency_overrides["get_db"] = db_test_engine.get_db
 
-        db = TestSession()
-        try:
-            yield db
-        finally:
-            db.close()
+    # binding db_test_engine with starlette TestClient
+    db_test_engine.bind_test_client()
 
-    # Creating test application
+    test_client = TestClient(db_test_engine.app)
 
-    app = create_application(
-        db_engine=test_engine,
-        db_tables=db_tables
-    )
+    db_test_engine.bind_test_client(test_client)
 
-    # Overriding database dependencies for routes with
-    # testing databse
-
-    app.dependency_overrides["get_db"] = get_test_db
-
-    with TestClient(app) as test_client:
+    with TestClient(db_test_engine.app) as test_client:
 
         try:
 
-            yield test_client
+            yield db_test_engine
 
         finally:
 
             # teardown
-            test_engine.dispose()
+            db_test_engine.engine.dispose()
 
             # Connect to posgres server to drop the database
-            teardown_engine = create_engine(
-                settings.database_url + settings.test_db)
+            teardown_engine = db_test_engine.init_engine()
             conn = teardown_engine.connect()
             conn.execute("DROP TABLE articles")
             conn.execute("DROP TABLE authors")

@@ -10,6 +10,8 @@ from sqlalchemy.engine import Engine
 from sqlalchemy.exc import OperationalError
 from sqlalchemy.ext.declarative import declarative_base
 
+from starlette.testclient import TestClient
+
 from project.app.config import get_settings, Settings
 
 log = logging.getLogger(__name__)
@@ -30,7 +32,8 @@ class Db():
         self.db_url: str = None
         self.engine: Engine = None
         self.localSession: Session = None
-        self.tables = tables
+        self.tables: list = tables
+        self.TestClient: TestClient = None
 
         # initializing database engine
 
@@ -48,7 +51,17 @@ class Db():
         self.tables = db_tables
 
     def bind_fastAPI(self, app: FastAPI):
+        ''' Bind Db instance to FastAPI application, returns the bnded
+        Db instance '''
+
         self.app = app
+        return self
+
+    def bind_test_client(self, test_client: TestClient):
+        '''Binds Db instance to Starlette Test Client for testing
+        returns the binded Db instance '''
+        self.TestClient = test_client
+        return self
 
     def init_engine(self) -> Engine:
         ''' Initialize the engine. require the connection string for
@@ -96,13 +109,14 @@ class Db():
             return session
 
     def set_base(self):
-        self.base = declarative_base(bind=self.engine)
+        self.base = declarative_base()
         return self.base
 
     def create_tables(self):
         if len(self.tables) != 0:
             db_tables = [table.__table__ for table in self.tables]
             self.base.metadata.create_all(
+
                 bind=self.engine,
                 tables=db_tables,
                 checkfirst=True
