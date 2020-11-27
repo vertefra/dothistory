@@ -17,7 +17,7 @@ class Author(BaseModel):
     class Config:
         orm_mode = True
 
-    def create_author(self, db: Session, password):
+    def create_author(self, db: Session, password: str):
         self.password = password
 
         new_author = authors.Author(**self.dict())
@@ -30,6 +30,17 @@ class Author(BaseModel):
 
         except IntegrityError as err:
             db.rollback()
+            raise err
+
+    def get_all_authors(db: Session):
+
+        all_authors = []
+
+        try:
+            all_authors = db.query(authors.Author).all()
+            return all_authors
+
+        except IntegrityError as err:
             raise err
 
     def __repr__(self):
