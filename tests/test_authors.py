@@ -15,4 +15,9 @@ def test_create_author(test_app_with_db):
     response = test_client.post(
         '/authors/', data=json.dumps(payload.dict()))
 
+    response_json = response.json()
+
     assert response.status_code == 201
+    assert response_json["id"] == 1
+    assert response_json["name"] == "Test Name"
+    assert response_json["email"] == "vertel@gmail.com"
