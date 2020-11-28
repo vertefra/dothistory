@@ -74,13 +74,16 @@ def test_find_all_authors(test_app_with_db):
     test_client = test_app_with_db.TestClient
 
     resp_1 = test_client.post(
-        "/authors/", data=json.dumps(payload_1.dict()))
+        "/authors/", data=json.dumps(payload_1.dict())
+    )
 
     resp_2 = test_client.post(
-        "/authors/", data=json.dumps(payload_2.dict()))
+        "/authors/", data=json.dumps(payload_2.dict())
+    )
 
     resp_3 = test_client.post(
-        "/authors/", data=json.dumps(payload_3.dict()))
+        "/authors/", data=json.dumps(payload_3.dict())
+    )
 
     assert resp_1.status_code == 201
     assert resp_2.status_code == 201
@@ -93,3 +96,17 @@ def test_find_all_authors(test_app_with_db):
     response_dict = response.json()
 
     assert type(response_dict) == list
+    assert response_dict[0] == "entry1"
+
+
+def test_find_author_by_id(test_app_with_db):
+
+    test_client = test_app_with_db.TestClient
+
+    response = test_client.get(f"/authors/{1}")
+
+    response_dict = response.json()
+
+    assert response_dict["name"] == "entry2"
+    assert response_dict["email"] == "email2@gmail.com"
+    assert response_dict["password"] is None

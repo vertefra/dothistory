@@ -12,6 +12,9 @@ from project.app.schemas.authors import AuthorResponsePayload
 router = APIRouter()
 
 
+# desc: add a author to the database
+# route: POST - /authors/
+# private
 @router.post("/", response_model=AuthorResponsePayload, status_code=201)
 async def create_author(
         author_payload: AuthorRequestPayload,
@@ -26,6 +29,9 @@ async def create_author(
             "success": False, "error": "duplicate key"})
 
 
+# desc: retrieve all the authors from database
+# route: GET - /authors/
+# private
 @router.get("/",
             responses={404: {"model": str}, 200: {"model": list}},
             status_code=200)
@@ -40,3 +46,8 @@ async def find_all_authors(db: Session = Depends(db_engine.get_db)):
     except IntegrityError:
         raise HTTPException(status_code=500, detail={
             "sucesso": False, "error": "Cannot retrieve authors"})
+
+
+@router.get("/{id}")
+async def find_author_by_id(id: int, db: Session = Depends(db_engine.get_db)):
+    pass
