@@ -66,7 +66,7 @@ def test_find_all_authors(test_app_with_db):
     )
 
     payload_3 = authors.AuthorRequestPayload(
-        name="entry2",
+        name="entry3",
         email="email3@gmail.com",
         password="pass"
     )
@@ -96,17 +96,28 @@ def test_find_all_authors(test_app_with_db):
     response_dict = response.json()
 
     assert type(response_dict) == list
-    assert response_dict[0] == "entry1"
+    assert response_dict[0]["name"] == "entry1"
+    assert response_dict[1]["name"] == "entry2"
+    assert response_dict[2]["name"] == "entry3"
+    assert response_dict[0]["password"] is None
 
 
 def test_find_author_by_id(test_app_with_db):
 
     test_client = test_app_with_db.TestClient
 
+    payload_1 = authors.AuthorRequestPayload(
+        name="entry1",
+        email="email1@gmail.com",
+        password="pass"
+    )
+
+    test_client.post("/authors/", data=json.dumps(payload_1.dict()))
+
     response = test_client.get(f"/authors/{1}")
 
     response_dict = response.json()
 
-    assert response_dict["name"] == "entry2"
-    assert response_dict["email"] == "email2@gmail.com"
-    assert response_dict["password"] is None
+    assert response_dict["name"] == "entry1"
+    assert response_dict["email"] == "email1@gmail.com"
+    assert "password" not in response_dict.values()

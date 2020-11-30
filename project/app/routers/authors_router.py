@@ -32,9 +32,11 @@ async def create_author(
 # desc: retrieve all the authors from database
 # route: GET - /authors/
 # private
-@router.get("/",
-            responses={404: {"model": str}, 200: {"model": list}},
-            status_code=200)
+@router.get(
+    "/",
+    responses={404: {"model": str}, 200: {"model": list}},
+    status_code=200
+)
 async def find_all_authors(db: Session = Depends(db_engine.get_db)):
     try:
         all_authors = Author.get_all_authors(db)
@@ -45,9 +47,24 @@ async def find_all_authors(db: Session = Depends(db_engine.get_db)):
 
     except IntegrityError:
         raise HTTPException(status_code=500, detail={
-            "sucesso": False, "error": "Cannot retrieve authors"})
+            "sucess": False, "error": "Cannot retrieve authors"})
 
 
-@router.get("/{id}")
+@router.get(
+    "/{id}",
+    status_code=200,
+    response_model=AuthorResponsePayload
+)
 async def find_author_by_id(id: int, db: Session = Depends(db_engine.get_db)):
-    pass
+    '''
+    desc:   get author from database by its id
+    route:  GET - /authors/{id}
+    public
+    '''
+
+    author = Author.get_author_by_id(db, id)
+
+    if author is not None:
+        return author
+    else:
+        raise HTTPException(status_code=404, detail="Author not found")

@@ -8,13 +8,13 @@ from project.app.database.db import Db
 db_test_engine = Db(testing=True)
 
 
-@pytest.fixture(scope="module")
+@pytest.fixture()
 def test_app() -> TestClient:
     with TestClient(app) as test_client:
         yield test_client
 
 
-@pytest.fixture(scope="module")
+@pytest.fixture()
 def test_app_with_db() -> TestClient:
 
     # Initializing database for testing
@@ -45,5 +45,6 @@ def test_app_with_db() -> TestClient:
         # Connect to posgres server to drop the database
         teardown_engine = db_test_engine.init_engine()
         conn = teardown_engine.connect()
+        print("tearingdown")
         conn.execute("DROP TABLE articles")
         conn.execute("DROP TABLE authors")

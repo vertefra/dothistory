@@ -33,15 +33,32 @@ class Author(BaseModel):
             raise err
 
     def get_all_authors(db: Session):
+        ''' returns all the authors in the database without password column '''
 
         all_authors = []
 
         try:
             all_authors = db.query(authors.Author).all()
-            return all_authors
+            sanitized_authors = []
+
+            for author in all_authors:
+                author.password = None
+                sanitized_authors.append(author)
+
+            return sanitized_authors
 
         except IntegrityError as err:
             raise err
+
+    def get_author_by_id(db: Session, id: int):
+        ''' returns and author filtered by its ID '''
+
+        found_author = db.query(authors.Author).filter_by(
+            id=id).one_or_none()
+
+        print("found:", found_author)
+
+        return found_author
 
     def __repr__(self):
         return {
