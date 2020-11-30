@@ -112,7 +112,9 @@ def test_find_author_by_id(test_app_with_db):
         password="pass"
     )
 
-    test_client.post("/authors/", data=json.dumps(payload_1.dict()))
+    resp_1 = test_client.post("/authors/", data=json.dumps(payload_1.dict()))
+
+    assert resp_1.status_code == 201
 
     response = test_client.get(f"/authors/{1}")
 
@@ -121,3 +123,45 @@ def test_find_author_by_id(test_app_with_db):
     assert response_dict["name"] == "entry1"
     assert response_dict["email"] == "email1@gmail.com"
     assert "password" not in response_dict.values()
+
+
+def test_update_author(test_app_with_db):
+
+    test_client = test_app_with_db.TestClient
+
+    payload_1 = authors.AuthorRequestPayload(
+        name="entry1",
+        email="email1@gmail.com",
+        password="pass"
+    )
+
+    resp_1 = test_client.post("/authors/", data=json.dumps(payload_1.dict()))
+
+    assert resp_1.status_code == 201
+
+    resp_dict = resp_1.json()
+    id = resp_dict["id"]
+
+    updated_payload = authors.AuthorRequestPayload(
+        name="updated name",
+        email="updated@email.com",
+        password="updated pass"
+    )
+
+    # print("should look for entry with id == ", id)
+
+    response = test_client.put(
+        f"/authors/{id}", data=json.dumps(updated_payload.dict())
+    )
+
+    assert response.status_code == 203
+
+    response = test_client.get(f"/authors/{id}")
+
+    assert response.status_code == 200
+
+    response_dict = response.json()
+
+    assert response_dict["name"] == "updated name"
+    assert response_dict["email"] == "updated@email.com"
+    assert "password" not in response_dict.keys()

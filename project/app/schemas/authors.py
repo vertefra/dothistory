@@ -51,7 +51,7 @@ class Author(BaseModel):
             raise err
 
     def get_author_by_id(db: Session, id: int):
-        ''' returns and author filtered by its ID '''
+        ''' Returns and author filtered by its ID '''
 
         found_author = db.query(authors.Author).filter_by(
             id=id).one_or_none()
@@ -59,6 +59,28 @@ class Author(BaseModel):
         print("found:", found_author)
 
         return found_author
+
+    def update_author(db: Session, id: int, updated_author):
+        ''' Update an author in the database '''
+
+        author = db.query(authors.Author).filter_by(
+            id=id).one_or_none()
+
+        if author is None:
+            raise FileNotFoundError
+        else:
+            for k, v in {**updated_author.dict()}.items():
+                if hasattr(author, k):
+                    setattr(author, k, v)
+
+        try:
+            db.commit()
+            db.refresh(author)
+            return author
+
+        except IntegrityError as err:
+            db.rollback()
+            raise err
 
     def __repr__(self):
         return {
