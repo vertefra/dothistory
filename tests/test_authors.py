@@ -165,3 +165,25 @@ def test_update_author(test_app_with_db):
     assert response_dict["name"] == "updated name"
     assert response_dict["email"] == "updated@email.com"
     assert "password" not in response_dict.keys()
+
+
+def test_update_author_not_found(test_app_with_db):
+    test_client = test_app_with_db.TestClient
+
+    updated_payload = authors.AuthorRequestPayload(
+        name="updated name",
+        email="updated@email.com",
+        password="updated pass"
+    )
+
+    id = 99
+
+    response = test_client.put(
+        f"/authors/{id}", data=json.dumps(updated_payload.dict())
+    )
+
+    assert response.status_code == 404
+
+    response_dict = response.json()
+
+    assert response_dict["detail"] == "Author not found"

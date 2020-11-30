@@ -108,5 +108,5 @@ async def update_author(
     try:
         updated_author = Author.update_author(db, id, updated_author_payload)
         return updated_author
-    except IntegrityError as err:
-        print(err)
+    except FileNotFoundError:
+        raise HTTPException(status_code=404, detail="Author not found")
