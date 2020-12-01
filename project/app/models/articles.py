@@ -10,7 +10,7 @@ class Article(Base):
     __tablename__ = "articles"
 
     id = Column(Integer, primary_key=True, index=True)
-    title = Column(String)
+    title = Column(String, unique=True)
     content = Column(Text)
     main_pic = Column(String)
 
